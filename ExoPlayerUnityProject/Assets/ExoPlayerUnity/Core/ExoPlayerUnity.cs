@@ -108,7 +108,7 @@ public class ExoPlayerUnity : MonoBehaviour
         textureID = 0;
 
         //call plugin function
-        IntPtr methodID = AndroidJNI.GetStaticMethodID(VideoPlayerClass, "Prepare", "(Landroid/content/Context;Ljava/lang/String;Lcom/tutandev/exoplayerunity/IUnityMessage;)V");
+        IntPtr methodID = AndroidJNI.GetStaticMethodID(VideoPlayerClass, "Init", "(Landroid/content/Context;Ljava/lang/String;Lcom/tutandev/exoplayerunity/IUnityMessage;)V");
         jvalue[] prepareVideoParams = new jvalue[3];
         prepareVideoParams[0].l = Activity;
         prepareVideoParams[1].l = AndroidJNI.NewStringUTF(url);
