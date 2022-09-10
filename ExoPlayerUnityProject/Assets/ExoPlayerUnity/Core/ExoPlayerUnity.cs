@@ -1,49 +1,37 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using UnityEngine;
-using UnityEngine.Events;
 
 public class ExoPlayerUnity : MonoBehaviour
 {
     #region Singleton
-    static bool initialized;
     static ExoPlayerUnity instance;
+    new static AndroidRenderer renderer;
     public static ExoPlayerUnity Instance
     {
         get
         {
-            CreatePersistantInstance();
+            if(!instance)
+            {
+                CreatePersistantInstance();
+            }
+
             return instance;
         }
     }
     static void CreatePersistantInstance()
     {
-        if (initialized)
-            return;
-
-        if (!Application.isPlaying)
-            return;
-
-        initialized = true;
-        var go = new GameObject("Loom");
+        var go = new GameObject("ExoPlayerUnity");
         instance = go.AddComponent<ExoPlayerUnity>();
+        renderer = new AndroidRenderer();
         DontDestroyOnLoad(go);
     }
 
     private void Awake()
     {
         instance = this;
-        initialized = true;
     }
     #endregion Singleton
 
-    [DllImport("RenderingPlugin")]
-    static extern System.IntPtr GetRenderEventFunc();
-
-    [DllImport("RenderingPlugin")]
-    static extern void DeleteSurfaceID(int surfaceID);
 
     const string VIDEOPLAYER_CLASS_NAME = "com/tutandev/exoplayerunity/ExoPlayerUnity";
     IntPtr? _VideoPlayerClass;
@@ -95,42 +83,33 @@ public class ExoPlayerUnity : MonoBehaviour
     // ...
     readonly jvalue[] EmptyParams = new jvalue[0];
 
-
-    int textureID;
-    int textureToCreate;
     AndroidVideoPlayer playerController;
 
     public void PrepareVideo(string url, AndroidVideoPlayer player)
     {
-        if (textureID > 0)
+        if (renderer.TextureID > 0)
             return;
 
-        textureID = 0;
-
         //call plugin function
-        IntPtr methodID = AndroidJNI.GetStaticMethodID(VideoPlayerClass, "Init", "(Landroid/content/Context;Ljava/lang/String;Lcom/tutandev/exoplayerunity/IUnityMessage;)V");
+        IntPtr methodID = AndroidJNI.GetStaticMethodID(VideoPlayerClass, "Prepare", "(Landroid/content/Context;Ljava/lang/String;Lcom/tutandev/exoplayerunity/IUnityMessage;)V");
         jvalue[] prepareVideoParams = new jvalue[3];
         prepareVideoParams[0].l = Activity;
         prepareVideoParams[1].l = AndroidJNI.NewStringUTF(url);
         prepareVideoParams[2].l = AndroidJNIHelper.CreateJavaProxy(new AndroidUnityMessage());
         AndroidJNI.CallStaticVoidMethod(VideoPlayerClass, methodID, prepareVideoParams);
 
-        //add to textures list to create on render thread
-        textureToCreate = 0;
-
-        //set material
         playerController = player;
 
         //start rendering updates
         if (UpdateTextureRoutine == null)
         {
-            UpdateTextureRoutine = StartCoroutine(CallPluginAtEndOfFrames());
+            UpdateTextureRoutine = StartCoroutine(renderer.CallPluginAtEndOfFrames());
         }
     }
 
     public void PlayVideo()
     {
-        if(textureID == 0)
+        if(renderer.TextureID == 0)
             return;
 
         IntPtr methodID = AndroidJNI.GetStaticMethodID(VideoPlayerClass, "Play", "()V");
@@ -139,7 +118,7 @@ public class ExoPlayerUnity : MonoBehaviour
 
     public void PauseVideo()
     {
-        if (textureID == 0)
+        if (renderer.TextureID == 0)
             return;
 
         IntPtr methodID = AndroidJNI.GetStaticMethodID(VideoPlayerClass, "Pause", "()V");
@@ -148,7 +127,7 @@ public class ExoPlayerUnity : MonoBehaviour
 
     public void StopVideo()
     {
-        if (textureID == 0)
+        if (renderer.TextureID == 0)
             return;
 
         IntPtr methodID = AndroidJNI.GetStaticMethodID(VideoPlayerClass, "Stop", "()V");
@@ -158,7 +137,7 @@ public class ExoPlayerUnity : MonoBehaviour
     //////// SETTERS //////// 
     public void SetLooping(bool shouldLoop)
     {
-        if (textureID == 0)
+        if (renderer.TextureID == 0)
             return;
 
         IntPtr methodID = AndroidJNI.GetStaticMethodID(VideoPlayerClass, "SetLooping", "(Z)V");
@@ -168,7 +147,7 @@ public class ExoPlayerUnity : MonoBehaviour
     }
     public void SetPlaybackPosition(float value)
     {
-        if (textureID == 0)
+        if (renderer.TextureID == 0)
             return;
 
         IntPtr methodID = AndroidJNI.GetStaticMethodID(VideoPlayerClass, "SetPlaybackPosition", "(D)V");
@@ -178,7 +157,7 @@ public class ExoPlayerUnity : MonoBehaviour
     }
     public void SetPlaybacSpeed(float value)
     {
-        if (textureID == 0)
+        if (renderer.TextureID == 0)
             return;
 
         IntPtr methodID = AndroidJNI.GetStaticMethodID(VideoPlayerClass, "SetPlaybackSpeed", "(F)V");
@@ -190,7 +169,7 @@ public class ExoPlayerUnity : MonoBehaviour
     //////// GETTERS ////////
     public int GetWidth()
     {
-        if (textureID == 0)
+        if (renderer.TextureID == 0)
             return 0;
 
         IntPtr methodID = AndroidJNI.GetStaticMethodID(VideoPlayerClass, "GetWidth", "()I");
@@ -198,7 +177,7 @@ public class ExoPlayerUnity : MonoBehaviour
     }
     public int GetHeight()
     {
-        if (textureID == 0)
+        if (renderer.TextureID == 0)
             return 0;
 
         IntPtr methodID = AndroidJNI.GetStaticMethodID(VideoPlayerClass, "GetHeight", "()I");
@@ -206,7 +185,7 @@ public class ExoPlayerUnity : MonoBehaviour
     }
     public bool GetIsPlaying()
     {
-        if (textureID == 0)
+        if (renderer.TextureID == 0)
             return false;
 
         IntPtr methodID = AndroidJNI.GetStaticMethodID(VideoPlayerClass, "GetIsPlaying", "()Z");
@@ -214,7 +193,7 @@ public class ExoPlayerUnity : MonoBehaviour
     }
     public int GetCurrentPlaybackState()
     {
-        if (textureID == 0)
+        if (renderer.TextureID == 0)
             return 0;
 
         IntPtr methodID = AndroidJNI.GetStaticMethodID(VideoPlayerClass, "GetCurrentPlaybackState", "()I");
@@ -222,7 +201,7 @@ public class ExoPlayerUnity : MonoBehaviour
     }
     public float GetLength()
     {
-        if (textureID == 0)
+        if (renderer.TextureID == 0)
             return 0;
 
         IntPtr methodID = AndroidJNI.GetStaticMethodID(VideoPlayerClass, "GetCurrentPlaybackState", "()J");
@@ -230,7 +209,7 @@ public class ExoPlayerUnity : MonoBehaviour
     }
     public float GetPlaybackPosition()
     {
-        if (textureID == 0)
+        if (renderer.TextureID == 0)
             return 0;
 
         IntPtr methodID = AndroidJNI.GetStaticMethodID(VideoPlayerClass, "GetPlaybackPosition", "()D");
@@ -240,36 +219,10 @@ public class ExoPlayerUnity : MonoBehaviour
 
     #region Rendering
     Coroutine UpdateTextureRoutine;
-    IEnumerator CallPluginAtEndOfFrames()
+
+    public void CreateOESTexture(int externalID)
     {
-        while (true)
-        {
-            yield return new WaitForEndOfFrame();
-
-            //create texture on render thread only
-            if (textureToCreate == 0)
-            {
-                GL.IssuePluginEvent(GetRenderEventFunc(), 0);
-                textureToCreate = -100;
-            }
-
-            //update texture
-            GL.IssuePluginEvent(GetRenderEventFunc(), -1);
-        }
-    }
-
-    public void CreateOESTexture(string videoInfo)
-    {
-        //get video info from message
-        int externalID = int.Parse(videoInfo);
-
-        Debug.Log("Texture ID from Unity: " + externalID);
-        Texture2D oesTex = Texture2D.CreateExternalTexture(0, 0, TextureFormat.RGB24, false, true,(IntPtr)externalID);
-        oesTex.Apply();
-
-        // Set texture onto our material
-        textureID = externalID;
-        playerController.rend.material.mainTexture = oesTex;
+        playerController.rend.material.mainTexture = renderer.CreateOESTexture(externalID);
     }
 
     #endregion
