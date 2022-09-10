@@ -68,7 +68,6 @@ public class VideoPlayer
         filePath = url;
     }
 
-
     public void Prepare(Surface surface)
     {
         //send videoID and textureID back to unity to create external texture

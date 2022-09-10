@@ -99,10 +99,9 @@ static void CreateSurfaceTexture()
     // Get the method to pass the Surface object to the videoPlayer
     jclass videoClass = findClass("com/tutandev/exoplayerunity/ExoPlayerUnity");
     int textureNum = (int)textureID;
-    jstring textureIDString = env->NewStringUTF(std::to_string(textureNum).c_str());
-    jmethodID playVideoMethodID = env->GetStaticMethodID(videoClass, "CreateSurface", "(Landroid/view/Surface;Ljava/lang/String;)V");
+    jmethodID playVideoMethodID = env->GetStaticMethodID(videoClass, "CreateSurface", "(Landroid/view/Surface;I)V");
     // Pass the JNI Surface object to the videoPlayer with video and texture ID
-    env->CallStaticVoidMethod(videoClass, playVideoMethodID, jniSurface, textureIDString);
+    env->CallStaticVoidMethod(videoClass, playVideoMethodID, jniSurface, textureNum);
 }
 
 static UnityGfxRenderer s_DeviceType;

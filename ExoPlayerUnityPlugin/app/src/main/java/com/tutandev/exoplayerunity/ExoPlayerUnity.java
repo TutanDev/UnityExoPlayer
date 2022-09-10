@@ -49,7 +49,7 @@ public class ExoPlayerUnity
         Log.d(TAG, message);
     }
 
-    public static void CreateSurface(Surface surface, String textureID)
+    public static void CreateSurface(Surface surface, int textureID)
     {
         if (videoPlayer == null)
         {
