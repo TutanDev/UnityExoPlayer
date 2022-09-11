@@ -26,7 +26,6 @@ public class AndroidVideoPlayer : MonoBehaviour
 
     public void PlayVideo()
     {
-
         if (!IsPrepared())
         {
             return;
@@ -34,7 +33,7 @@ public class AndroidVideoPlayer : MonoBehaviour
 
         if (Application.platform == RuntimePlatform.Android)
         {
-            ExoPlayerUnity.Instance.PlayVideo();
+            ExoPlayerUnity.Instance.CallJavaMethod(ExoPlayerMethod.PlayVideo);
         }
     }
 
@@ -48,7 +47,7 @@ public class AndroidVideoPlayer : MonoBehaviour
 
         if (Application.platform == RuntimePlatform.Android)
         {
-            ExoPlayerUnity.Instance.PauseVideo();
+            ExoPlayerUnity.Instance.CallJavaMethod(ExoPlayerMethod.PauseVideo);
         }
     }
 
@@ -64,31 +63,31 @@ public class AndroidVideoPlayer : MonoBehaviour
 
         if (Application.platform == RuntimePlatform.Android)
         {
-            ExoPlayerUnity.Instance.StopVideo();
+            ExoPlayerUnity.Instance.CallJavaMethod(ExoPlayerMethod.StopVideo);
         }
     }
 
-    public int GetWidth()
-    {
+    //public int GetWidth()
+    //{
 
-        if (!IsPrepared())
-        {
-            return 0;
-        }
+    //    if (!IsPrepared())
+    //    {
+    //        return 0;
+    //    }
 
-        return Application.platform == RuntimePlatform.Android ? ExoPlayerUnity.Instance.GetWidth() : 0;
-    }
+    //    return Application.platform == RuntimePlatform.Android ? ExoPlayerUnity.Instance.GetWidth() : 0;
+    //}
 
-    public int GetHeight()
-    {
+    //public int GetHeight()
+    //{
 
-        if (!IsPrepared())
-        {
-            return 0;
-        }
+    //    if (!IsPrepared())
+    //    {
+    //        return 0;
+    //    }
 
-        return Application.platform == RuntimePlatform.Android ? ExoPlayerUnity.Instance.GetHeight() : 0;
-    }
+    //    return Application.platform == RuntimePlatform.Android ? ExoPlayerUnity.Instance.GetHeight() : 0;
+    //}
 
     public void SetLooping(bool shouldLoop)
     {
@@ -99,7 +98,7 @@ public class AndroidVideoPlayer : MonoBehaviour
 
         if (Application.platform == RuntimePlatform.Android)
         {
-            ExoPlayerUnity.Instance.SetLooping(shouldLoop);
+            ExoPlayerUnity.Instance.CallJavaMethod(ExoPlayerMethod.SetLooping, shouldLoop);
         }
     }
 
@@ -113,30 +112,30 @@ public class AndroidVideoPlayer : MonoBehaviour
 
         if (Application.platform == RuntimePlatform.Android)
         {
-            ExoPlayerUnity.Instance.SetPlaybackPosition(value);
+            ExoPlayerUnity.Instance.CallJavaMethod(ExoPlayerMethod.SetLooping, value);
         }
     }
 
     //returns format 0-1
-    public float GetCurrentPlaybackPercent()
-    {
-        if (!IsPrepared())
-        {
-            return 0;
-        }
+    //public float GetCurrentPlaybackPercent()
+    //{
+    //    if (!IsPrepared())
+    //    {
+    //        return 0;
+    //    }
 
-        return Application.platform == RuntimePlatform.Android ? ExoPlayerUnity.Instance.GetPlaybackPosition() : (float)0;
-    }
+    //    return Application.platform == RuntimePlatform.Android ? ExoPlayerUnity.Instance.GetPlaybackPosition() : (float)0;
+    //}
 
-    public bool IsPlaying()
-    {
-        if (!IsPrepared())
-        {
-            return false;
-        }
+    //public bool IsPlaying()
+    //{
+    //    if (!IsPrepared())
+    //    {
+    //        return false;
+    //    }
 
-        return Application.platform == RuntimePlatform.Android ? ExoPlayerUnity.Instance.GetIsPlaying() : false;
-    }
+    //    return Application.platform == RuntimePlatform.Android ? ExoPlayerUnity.Instance.GetIsPlaying() : false;
+    //}
 
     public bool IsPrepared()
     {
