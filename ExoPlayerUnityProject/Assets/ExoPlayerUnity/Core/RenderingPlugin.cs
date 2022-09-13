@@ -3,7 +3,7 @@ using System.Collections;
 using System.Runtime.InteropServices;
 using UnityEngine;
 
-public class AndroidRenderer 
+public class RenderingPlugin 
 {
     [DllImport("RenderingPlugin")]
     static extern IntPtr GetRenderEventFunc();
@@ -12,9 +12,13 @@ public class AndroidRenderer
 
 
     int textureID;
-    public int TextureID => textureID;
+    Texture2D oesTex;
 
-    public AndroidRenderer()
+    public int ID => textureID;
+    public Texture2D OESTex => oesTex;
+
+
+    public RenderingPlugin()
     {
         textureID = 0;
     }
@@ -32,9 +36,13 @@ public class AndroidRenderer
     public Texture2D CreateOESTexture(int externalID)
     {
         Debug.Log("Texture ID from Unity: " + externalID);
-        Texture2D oesTex = Texture2D.CreateExternalTexture(0, 0, TextureFormat.RGB24, false, true, (IntPtr)externalID);
-        oesTex.Apply();
+        oesTex = Texture2D.CreateExternalTexture(0, 0, TextureFormat.RGB24, false, true, (IntPtr)externalID);
         textureID = externalID;
         return oesTex;
+    }
+
+    public void DeleteSurface()
+    {
+        DeleteSurfaceID(textureID);
     }
 }

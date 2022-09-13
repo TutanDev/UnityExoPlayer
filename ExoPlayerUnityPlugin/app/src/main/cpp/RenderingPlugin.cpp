@@ -134,13 +134,13 @@ static void UpdateAndroidSurface()
 
 static void UNITY_INTERFACE_API OnRenderEvent(int eventID)
 {
-    if (eventID == -1)
+    if (eventID == 0)
     {
-        UpdateAndroidSurface();
+        CreateSurfaceTexture(/*eventID*/);
     }
     else
     {
-        CreateSurfaceTexture(/*eventID*/);
+        UpdateAndroidSurface();
     }
 }
 

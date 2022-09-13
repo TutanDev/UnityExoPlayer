@@ -51,10 +51,7 @@ public class ExoPlayerUnity
 
     public static void CreateSurface(Surface surface, int textureID)
     {
-        if (videoPlayer == null)
-        {
-            return;
-        }
+        if (videoPlayer == null) return;
 
         //send videoID and textureID back to unity to create external texture
         unityMessage.CreateOESTexture(textureID);

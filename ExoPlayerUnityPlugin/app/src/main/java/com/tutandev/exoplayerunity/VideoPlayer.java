@@ -14,6 +14,7 @@ import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.database.ExoDatabaseProvider;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
@@ -23,7 +24,9 @@ import com.google.android.exoplayer2.source.smoothstreaming.DefaultSsChunkSource
 import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
+import com.google.android.exoplayer2.upstream.FileDataSource;
 import com.google.android.exoplayer2.upstream.FileDataSourceFactory;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.cache.Cache;
@@ -101,6 +104,66 @@ public class VideoPlayer
 
         exoPlayer.setRepeatMode(Player.REPEAT_MODE_ONE);
         exoPlayer.setPlayWhenReady(false);
+    }
+
+    private void AddPlayerListener()
+    {
+        exoPlayer.addListener(new Player.Listener() {
+            @Override
+            public void onPlayWhenReadyChanged(boolean playWhenReady, int reason)
+            {
+                isPlaying = playWhenReady && (currentPlaybackState == Player.STATE_READY || currentPlaybackState == Player.STATE_BUFFERING);
+                updatePlaybackState();
+            }
+
+            @Override
+            public void onPlaybackStateChanged(int playbackState)
+            {
+                //call on prepared from unity
+                if (!readyToPlay && playbackState == Player.STATE_READY)
+                {
+                    readyToPlay = true;
+                    //unityMessage.OnVideoPrepared();
+                }
+
+                currentPlaybackState = playbackState;
+                updatePlaybackState();
+            }
+
+            @Override
+            public void onPlaybackParametersChanged(PlaybackParameters params)
+            {
+                updatePlaybackState();
+            }
+
+            @Override
+            public void onPositionDiscontinuity(Player.PositionInfo oldPosition, Player.PositionInfo newPosition, int reason)
+            {
+                updatePlaybackState();
+            }
+
+        });
+    }
+
+    public void updatePlaybackState()
+    {
+        duration = exoPlayer.getDuration();
+        lastPlaybackPosition = exoPlayer.getCurrentPosition();
+        lastPlaybackSpeed = isPlaying ? exoPlayer.getPlaybackParameters().speed : 0;
+        lastPlaybackUpdateTime = System.currentTimeMillis();
+        Format format = exoPlayer.getVideoFormat();
+        if (format != null)
+        {
+            stereoMode = format.stereoMode;
+            width = format.width;
+            height = format.height;
+        }
+        else
+        {
+            stereoMode = -1;
+            width = 0;
+            height = 0;
+        }
     }
 
     public void Play()
@@ -207,18 +270,16 @@ public class VideoPlayer
      */
     public static HttpDataSource.Factory buildHttpDataSourceFactory(Context context)
     {
-        return new DefaultHttpDataSourceFactory(Util.getUserAgent(context, "NativeVideoPlayer"));
+        return new DefaultHttpDataSource.Factory().setUserAgent(Util.getUserAgent(context, "VideoPlayer"));
     }
 
-    private CacheDataSourceFactory buildReadOnlyCacheDataSource(DefaultDataSourceFactory upstreamFactory, Cache cache)
+    private CacheDataSource.Factory buildReadOnlyCacheDataSource(DefaultDataSourceFactory upstreamFactory, Cache cache)
     {
-        return new CacheDataSourceFactory(
-                cache,
-                upstreamFactory,
-                new FileDataSourceFactory(),
-                /* cacheWriteDataSinkFactory= */ null,
-                CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR,
-                /* eventListener= */ null);
+        return new CacheDataSource.Factory().
+                setCache(cache).
+                setUpstreamDataSourceFactory(upstreamFactory).
+                setCacheReadDataSourceFactory(new FileDataSource.Factory()).
+                setFlags(CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR);
     }
 
     private static synchronized Cache getDownloadCache(Context context)
@@ -226,7 +287,7 @@ public class VideoPlayer
         if (ExoPlayerUnity.downloadCache == null)
         {
             File downloadContentDirectory = new File(getDownloadDirectory(context), "downloads");
-            ExoPlayerUnity.downloadCache = new SimpleCache(downloadContentDirectory, new NoOpCacheEvictor());
+            ExoPlayerUnity.downloadCache = new SimpleCache(downloadContentDirectory, new NoOpCacheEvictor(), new ExoDatabaseProvider(context));
         }
         return ExoPlayerUnity.downloadCache;
     }
@@ -294,66 +355,5 @@ public class VideoPlayer
         }
 
         return uri;
-    }
-
-    private void AddPlayerListener()
-    {
-        exoPlayer.addListener(new Player.Listener() {
-            @Override
-            public void onPlayWhenReadyChanged(boolean playWhenReady, int reason)
-            {
-                isPlaying = playWhenReady && (currentPlaybackState == Player.STATE_READY
-                        || currentPlaybackState == Player.STATE_BUFFERING);
-                updatePlaybackState();
-            }
-
-            @Override
-            public void onPlaybackStateChanged(int playbackState)
-            {
-                //call on prepared from unity
-                if (!readyToPlay && playbackState == Player.STATE_READY)
-                {
-                    readyToPlay = true;
-                    //unityMessage.OnVideoPrepared();
-                }
-
-                currentPlaybackState = playbackState;
-                updatePlaybackState();
-            }
-
-            @Override
-            public void onPlaybackParametersChanged(PlaybackParameters params)
-            {
-                updatePlaybackState();
-            }
-
-            @Override
-            public void onPositionDiscontinuity(Player.PositionInfo oldPosition, Player.PositionInfo newPosition, int reason)
-            {
-                updatePlaybackState();
-            }
-
-        });
-    }
-
-    public void updatePlaybackState()
-    {
-        duration = exoPlayer.getDuration();
-        lastPlaybackPosition = exoPlayer.getCurrentPosition();
-        lastPlaybackSpeed = isPlaying ? exoPlayer.getPlaybackParameters().speed : 0;
-        lastPlaybackUpdateTime = System.currentTimeMillis();
-        Format format = exoPlayer.getVideoFormat();
-        if (format != null)
-        {
-            stereoMode = format.stereoMode;
-            width = format.width;
-            height = format.height;
-        }
-        else
-        {
-            stereoMode = -1;
-            width = 0;
-            height = 0;
-        }
     }
 }
