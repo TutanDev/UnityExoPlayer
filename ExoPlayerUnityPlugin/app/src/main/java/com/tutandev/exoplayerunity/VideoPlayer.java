@@ -25,13 +25,10 @@ import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.upstream.FileDataSource;
-import com.google.android.exoplayer2.upstream.FileDataSourceFactory;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.cache.Cache;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
-import com.google.android.exoplayer2.upstream.cache.CacheDataSourceFactory;
 import com.google.android.exoplayer2.upstream.cache.NoOpCacheEvictor;
 import com.google.android.exoplayer2.upstream.cache.SimpleCache;
 import com.google.android.exoplayer2.util.Util;
@@ -108,12 +105,14 @@ public class VideoPlayer
 
     private void AddPlayerListener()
     {
-        exoPlayer.addListener(new Player.Listener() {
+        exoPlayer.addListener(new Player.Listener()
+        {
             @Override
             public void onPlayWhenReadyChanged(boolean playWhenReady, int reason)
             {
                 isPlaying = playWhenReady && (currentPlaybackState == Player.STATE_READY || currentPlaybackState == Player.STATE_BUFFERING);
                 updatePlaybackState();
+                ExoPlayerUnity.unityMessage.OnPlayWhenReadyChanged(playWhenReady, reason);
             }
 
             @Override
@@ -128,6 +127,7 @@ public class VideoPlayer
 
                 currentPlaybackState = playbackState;
                 updatePlaybackState();
+                ExoPlayerUnity.unityMessage.OnPlaybackStateChanged(playbackState);
             }
 
             @Override

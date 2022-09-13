@@ -33,7 +33,7 @@ public class AndroidVideoPlayer : MonoBehaviour
     {
         if (!IsPrepared())
         {
-            return;
+            //return;
         }
 
         ExoPlayerUnity.Instance.CallJavaMethod(ExoPlayerMethod.PauseVideo);

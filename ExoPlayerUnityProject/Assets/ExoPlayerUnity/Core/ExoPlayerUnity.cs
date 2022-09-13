@@ -119,3 +119,20 @@ public enum ExoPlayerMethod
     SetPlaybackPosition,
     SetPlaybacSpeed,
 }
+
+public enum ExoPlayer_PlaybackState
+{
+    IDLE = 1,
+    BUFFERING = 2,
+    READY = 3,
+    ENDED = 4
+}
+
+public enum ExoPlayer_PlayWhenReadyChangeReason
+{
+    USER_REQUEST = 1,
+    AUDIO_FOCUS_LOSS = 2,
+    AUDIO_BECOMING_NOISY = 3,
+    REMOTE = 4,
+    END_OF_MEDIA_ITEM = 5
+}

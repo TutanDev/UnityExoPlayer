@@ -28,9 +28,9 @@ public class ExoPlayerUnity
         if (videoPlayer == null)
         {
             myContext = context;
+            unityMessage = _unityMessage;
             videoPlayer = new VideoPlayer(context, filePath);
             Log.d(TAG, "Added video player");
-            unityMessage = _unityMessage;
         }
     }
 

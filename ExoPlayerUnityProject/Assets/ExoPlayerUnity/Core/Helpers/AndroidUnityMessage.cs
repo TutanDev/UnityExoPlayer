@@ -13,8 +13,6 @@ public class AndroidUnityMessage : AndroidJavaProxy
         ExoPlayerUnity.Instance.CreateOESTexture(textureID);
     }
 
-    public void OnVideoPrepared() 
-    {
-
-    } 
+    public void OnPlayWhenReadyChanged(bool playWhenReady, int reason) { Debug.LogWarning($"TUTAN EXOPLAYER EVENT OnPlayWhenReadyChanged({playWhenReady}, {(ExoPlayer_PlayWhenReadyChangeReason)reason})"); }
+    public void OnPlaybackStateChanged(int playbackState) { Debug.LogWarning($"TUTAN EXOPLAYER EVENT OnPlaybackStateChanged({(ExoPlayer_PlaybackState)playbackState})"); }
 }

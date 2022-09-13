@@ -823,9 +823,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 447098411}
-        m_TargetAssemblyTypeName: AVPMeshDisplay, Assembly-CSharp
-        m_MethodName: AssignTextures
+      - m_Target: {fileID: 89139898}
+        m_TargetAssemblyTypeName: AndroidVideoPlayer, Assembly-CSharp
+        m_MethodName: PauseVideo
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
