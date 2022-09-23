@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class AndroidVideoPlayer : MonoBehaviour
 {
+    [SerializeField] string m_url;
     bool isPrepared;
 
     public bool IsPrepared()
@@ -13,9 +14,13 @@ public class AndroidVideoPlayer : MonoBehaviour
         return isPrepared;
     }
 
-    public void PrepareVideo(string url)
+    public void PrepareVideo(string url = string.Empty)
     {
-        ExoPlayerUnity.Instance.PrepareVideo(url);
+        if(url == string.Empty && url != string.Empty)
+        {
+            m_url = url;
+        }
+        ExoPlayerUnity.Instance.PrepareVideo(m_url);
         isPrepared = true;
     }
 

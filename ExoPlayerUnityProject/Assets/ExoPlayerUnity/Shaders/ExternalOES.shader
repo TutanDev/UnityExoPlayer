@@ -6,7 +6,7 @@ Shader "Custom/ExternalOES"
     {
         [HideInInspector] _MainTex ("Texture", 2D) = "white" {}
     }
-        SubShader
+    SubShader
     {
         Tags { "RenderType" = "Geometry" }
         Pass
@@ -50,4 +50,5 @@ Shader "Custom/ExternalOES"
             ENDGLSL
         }
     }
+    Fallback "Standard"
 }
