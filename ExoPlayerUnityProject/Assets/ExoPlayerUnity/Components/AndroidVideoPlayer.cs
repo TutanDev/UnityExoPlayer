@@ -14,12 +14,19 @@ public class AndroidVideoPlayer : MonoBehaviour
         return isPrepared;
     }
 
-    public void PrepareVideo(string url = string.Empty)
+    public void PrepareVideo(string url = null)
     {
-        if(url == string.Empty && url != string.Empty)
+        if(!string.IsNullOrEmpty(url))
         {
             m_url = url;
         }
+
+        if (string.IsNullOrEmpty(m_url))
+        {
+            Debug.LogWarning("URL is null or empty", this);
+            return;
+        }
+
         ExoPlayerUnity.Instance.PrepareVideo(m_url);
         isPrepared = true;
     }
