@@ -7,4 +7,4 @@ This topic seems to be very confusing when looking for information and many post
 
 This project is not meant to be used in production, it is just a lab to test different approaches.
 There is not a real focus on the video player itself regarding media features, it is just a way of simulating
-real life scenario with continuoous external rendering.
+real life scenario with continuous external rendering.
